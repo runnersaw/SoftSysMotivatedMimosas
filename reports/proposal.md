@@ -4,7 +4,7 @@
 ##### Deniz Celik, Sawyer Vaughan, Chris Wallace, Chong Swee
 
 ## Project Goals
-For this project we want to understand much more about how debuggers such as GDB work. While we will obviously not be able to create all of the functionality of GDB, we are interested in at least recreating some of that functionality
+For this project we want to understand much more about how debuggers such as GDB work. While we will obviously not be able to create all of the functionality of GDB, we are interested in at least recreating some of that functionality.
 
 ### Lower bound:
  - Create a breakpoint in a running c file
