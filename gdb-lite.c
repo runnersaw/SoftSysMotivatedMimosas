@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "src/run.h"
+
 #define MAX_INPUT_LENGTH 100
 
 int main(int argc, char *argv[]) {
@@ -17,25 +19,14 @@ int main(int argc, char *argv[]) {
 
   char *fname = argv[1];
 
-  // Check if we have execute permission
-  if(access(fname, F_OK) != -1) {
-    // file exists
-    if (access(fname, X_OK) != -1) {
-      // TODO: security checks?
-      system(fname);
-    } else {
-      printf("No executable permission for %s", fname);
-      return -1;
-    }
-  } else {
-    // file doesn't exist
-    printf("File %s doesn't exist\n", fname);
-    return -1;
-  }
-
   while (fgets(input, MAX_INPUT_LENGTH, stdin) != NULL) {
     // Interpret command here
-
+    if (strcmp(input, "run") == 0) {
+      int code = run(fname);
+      printf("%s exited with code %d\n", fname, code);
+    } else {
+      printf("Command not handled: %s\n", input);
+    }
   }
 
   return 0;
