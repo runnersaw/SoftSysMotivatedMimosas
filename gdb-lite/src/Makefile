@@ -26,10 +26,12 @@ $(ODIR)/%.o: %.c $(DEPS)
 	$(dir_guard)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-gdb-lite: $(OBJ)
+$(GDB_LITE_OUT): $(OBJ)
 	gcc -o $(GDB_LITE_OUT) $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+gdb-lite: $(GDB_LITE_OUT)
+
+.PHONY: clean gdb-lite
 
 clean:
 	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~
