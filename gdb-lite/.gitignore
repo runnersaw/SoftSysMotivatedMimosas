@@ -1,0 +1,4 @@
+
+# Ignore output executable
+gdb-lite
+
