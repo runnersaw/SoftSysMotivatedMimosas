@@ -5,7 +5,7 @@ CFLAGS=-I$(IDIR)
 ODIR=obj
 LDIR =../lib
 
-LIBS=-lm
+LIBS=
 
 _DEPS = run.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
