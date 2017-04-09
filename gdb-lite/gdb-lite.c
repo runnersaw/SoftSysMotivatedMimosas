@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "src/run.h"
+#include "run.h"
 
 #define MAX_INPUT_LENGTH 100
 
