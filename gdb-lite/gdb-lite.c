@@ -8,6 +8,15 @@
 
 #define MAX_INPUT_LENGTH 1000
 
+/*
+get_input
+  Takes an already malloc'ed char * and will copy the input from the user into it.
+  The `input` argument should be an already malloc'ed string with at least MAX_INPUT_LENGTH
+  of space.
+
+  This is essentially a wrapper around fgets that prints "> " before user input, and cleans
+  the newline (\n) from the end of the string.
+*/
 char *get_input(char *input) {
   printf("> ");
   char *ret = fgets(input, MAX_INPUT_LENGTH, stdin);
@@ -25,6 +34,14 @@ char *get_input(char *input) {
   return input;
 }
 
+/*
+rest_of_string_after_delimiter
+  Takes an input string and a delimiter, and returns a newly allocated string that
+  contains the portion of the input string that is after the first instance of the 
+  delimiter.
+
+  It is your responsibility to free the returned string!
+*/
 char *rest_of_string_after_delimiter(char *input, char *delimiter) {
   char *res = strstr(input, delimiter);
   if (res == NULL) {
@@ -41,6 +58,14 @@ char *rest_of_string_after_delimiter(char *input, char *delimiter) {
   return output;
 }
 
+/*
+first_string_before_delimiter
+  Takes an input string and a delimiter, and returns a newly allocated string that
+  contains the portion of the input string that is before the first instance of the 
+  delimiter.
+
+  It is your responsibility to free the returned string!
+*/
 char *first_string_before_delimiter(char *input, char *delimiter) {
   // Find first instance of delimiter
   char *res = strstr(input, delimiter);
