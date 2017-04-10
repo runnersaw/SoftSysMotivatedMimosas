@@ -30,7 +30,14 @@ char *rest_of_string_after_delimiter(char *input, char *delimiter) {
   if (res == NULL) {
     return "";
   }
-  char *output = res + strlen(delimiter);
+
+  res = res + strlen(delimiter);
+
+  int len = strlen(res) + 1;
+  char *output = malloc(len*sizeof(char));
+  strcpy(output, res);
+  output[len-1] = '\0';
+
   return output;
 }
 
