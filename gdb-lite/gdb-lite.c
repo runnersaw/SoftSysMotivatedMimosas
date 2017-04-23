@@ -45,7 +45,6 @@ int main(int argc, char *argv[]) {
         
       }
     } else {
-      printf("Value is %i\n",strcmp(input, "run\n"));
       printf("Command not handled: %s\n", input);
     }
   }
