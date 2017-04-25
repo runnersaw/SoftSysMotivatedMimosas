@@ -4,42 +4,162 @@
 #include <sys/user.h>
 #include <sys/reg.h>
 #include <unistd.h> 
+#include <string.h>
 
 #include "breakpoint.h"
-int insertBreakpoint(int pid) {
-  pid_t traced_process;
-   int wait_status;
 
-  struct user_regs_struct regs;
-  long ins;
 
-  //run objdump -d on the executable you want to find
-  //Location of insturction to stop on
-  unsigned breakAddress = 0x4005a2;
-  traced_process = pid;
-  wait(NULL);
-  //GEt the contents of registers
-  ptrace(PTRACE_GETREGS, traced_process,
-         NULL, &regs);
-  //find the instruction at the memory address
-  ins = ptrace(PTRACE_PEEKTEXT, traced_process, 
-    (void*)breakAddress, 0);
-  //IDK why this is really being done, but it codes for the trap instruction
-  unsigned data_with_trap = (ins & 0xffffff00) | 0xCC;
-  //Write trap instruction
-  ptrace(PTRACE_POKETEXT, traced_process, breakAddress, data_with_trap);
-  printf ("Data now %08x \n", ptrace(PTRACE_PEEKTEXT, traced_process, breakAddress, 0));
-  //Keep it going
-  ptrace(PTRACE_CONT, traced_process, 0,0 );
-  //wait(&wait_status);
-  // if (WIFSTOPPED(wait_status)) {
-  //   printf("Child got signal %s\n", strsignal(WSTOPSIG(wait_status)));
 
-  // }
-  //Check registers again
-  ptrace(PTRACE_GETREGS, traced_process,
-         NULL, &regs);
-  //print location of instruction pointer, should be +1 of breakADdress
-  printf("Child stopped at %08x\n", regs.rip);
-  return 0;
+Breakpoint *make_breakpoint() {
+  Breakpoint *breakpoint = malloc(sizeof(Breakpoint));
+  return breakpoint;
+
+}
+int wait_status;
+struct user_regs_struct regs;
+
+unsigned long insertBreakpoint(Breakpoint *breakpoint) {
+    
+    unsigned long addr = breakpoint->address;
+    int child_pid = breakpoint->pid;
+    unsigned long data;
+    
+
+    printf("debugger started\n");
+
+    /* Wait for child to stop on its first instruction */
+    wait(&wait_status);
+
+    /* Obtain and show child's instruction pointer */
+    ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
+    printf("Child started. RIP = 0x%08x\n", regs.rip);
+
+    
+    breakpoint->previousInstruction = ptrace(PTRACE_PEEKTEXT, child_pid, (void*)addr, 0);
+    printf("Original data at 0x%08x: 0x%08x\n", addr, data);
+
+    /* Write the trap instruction 'int 3' into the address */
+    unsigned long data_with_trap = (data & 0xFFFFFF00) | 0xCC;
+    ptrace(PTRACE_POKETEXT, child_pid, (void*)addr, (void*)data_with_trap);
+
+    /* See what's there again... */
+    unsigned long readback_data = ptrace(PTRACE_PEEKTEXT, child_pid, (void*)addr, 0);
+    printf("After trap, data at 0x%08x: 0x%08x\n", addr, readback_data);
+
+    /* Let the child run to the breakpoint and wait for it to
+    ** reach it
+    */
+    ptrace(PTRACE_CONT, child_pid, 0, 0);
+
+    wait(&wait_status);
+    if (WIFSTOPPED(wait_status)) {
+        printf("Child got a signal: %s\n", strsignal(WSTOPSIG(wait_status)));
+    }
+    else {
+        perror("wait");
+        return;
+    }
+
+    /* See where the child is now */
+    ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
+    printf("Child stopped at RIP = 0x%08x\n", regs.rip);
+
+  return data;
+}
+
+int resumeBreakpoint(Breakpoint *breakpoint) {
+    /* Remove the breakpoint by restoring the previous data
+    ** at the target address, and unwind the EIP back by 1 to
+    ** let the CPU execute the original instruction that was
+    ** there.
+    */
+    unsigned long addr = breakpoint->address;
+    unsigned long data = breakpoint->previousInstruction;
+    int child_pid = breakpoint->pid;
+    ptrace(PTRACE_POKETEXT, child_pid, (void*)addr, (void*)data);
+    regs.rip -= 1;
+    ptrace(PTRACE_SETREGS, child_pid, 0, &regs);
+
+    /* The child can continue running now */
+    ptrace(PTRACE_CONT, child_pid, 0, 0);
+
+    wait(&wait_status);
+
+    if (WIFEXITED(wait_status)) {
+        printf("Child exited\n");
+    }
+    else {
+        printf("Unexpected signal\n");
+        printf("Yes: %s \n", strsignal(WSTOPSIG(wait_status)));
+    }
+
+
+}
+
+void run_debugger(pid_t child_pid)
+{
+
+    int wait_status;
+    struct user_regs_struct regs;
+
+    printf("debugger started\n");
+
+    /* Wait for child to stop on its first instruction */
+    wait(&wait_status);
+
+    /* Obtain and show child's instruction pointer */
+    ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
+    printf("Child started. RIP = 0x%08x\n", regs.rip);
+
+    unsigned long addr = 0x4005a2;
+    unsigned long data = ptrace(PTRACE_PEEKTEXT, child_pid, (void*)addr, 0);
+    printf("Original data at 0x%08x: 0x%08x\n", addr, data);
+
+    /* Write the trap instruction 'int 3' into the address */
+    unsigned long data_with_trap = (data & 0xFFFFFF00) | 0xCC;
+    ptrace(PTRACE_POKETEXT, child_pid, (void*)addr, (void*)data_with_trap);
+
+    /* See what's there again... */
+    unsigned long readback_data = ptrace(PTRACE_PEEKTEXT, child_pid, (void*)addr, 0);
+    printf("After trap, data at 0x%08x: 0x%08x\n", addr, readback_data);
+
+    /* Let the child run to the breakpoint and wait for it to
+    ** reach it
+    */
+    ptrace(PTRACE_CONT, child_pid, 0, 0);
+
+    wait(&wait_status);
+    if (WIFSTOPPED(wait_status)) {
+        printf("Child got a signal: %s\n", strsignal(WSTOPSIG(wait_status)));
+    }
+    else {
+        perror("wait");
+        return;
+    }
+
+    /* See where the child is now */
+    ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
+    printf("Child stopped at RIP = 0x%08x\n", regs.rip);
+
+    /* Remove the breakpoint by restoring the previous data
+    ** at the target address, and unwind the EIP back by 1 to
+    ** let the CPU execute the original instruction that was
+    ** there.
+    */
+    ptrace(PTRACE_POKETEXT, child_pid, (void*)addr, (void*)data);
+    regs.rip -= 1;
+    ptrace(PTRACE_SETREGS, child_pid, 0, &regs);
+
+    /* The child can continue running now */
+    ptrace(PTRACE_CONT, child_pid, 0, 0);
+
+    wait(&wait_status);
+
+    if (WIFEXITED(wait_status)) {
+        printf("Child exited\n");
+    }
+    else {
+        printf("Unexpected signal\n");
+        printf("Yes: %s \n", strsignal(WSTOPSIG(wait_status)));
+    }
 }
