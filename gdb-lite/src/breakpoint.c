@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <stdio.h>
 #include <sys/ptrace.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -32,11 +34,11 @@ unsigned long insertBreakpoint(Breakpoint *breakpoint) {
 
     /* Obtain and show child's instruction pointer */
     ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
-    printf("Child started. RIP = 0x%08x\n", regs.rip);
+    printf("Child started. RIP = 0x%08llx\n", regs.rip);
 
     
     breakpoint->previousInstruction = ptrace(PTRACE_PEEKTEXT, child_pid, (void*)addr, 0);
-    printf("Original data at 0x%08x: 0x%08x\n", addr, data);
+    printf("Original data at 0x%08lx: 0x%08lx\n", addr, data);
 
     /* Write the trap instruction 'int 3' into the address */
     unsigned long data_with_trap = (data & 0xFFFFFF00) | 0xCC;
@@ -44,7 +46,7 @@ unsigned long insertBreakpoint(Breakpoint *breakpoint) {
 
     /* See what's there again... */
     unsigned long readback_data = ptrace(PTRACE_PEEKTEXT, child_pid, (void*)addr, 0);
-    printf("After trap, data at 0x%08x: 0x%08x\n", addr, readback_data);
+    printf("After trap, data at 0x%08lx: 0x%08lx\n", addr, readback_data);
 
     /* Let the child run to the breakpoint and wait for it to
     ** reach it
@@ -62,7 +64,7 @@ unsigned long insertBreakpoint(Breakpoint *breakpoint) {
 
     /* See where the child is now */
     ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
-    printf("Child stopped at RIP = 0x%08x\n", regs.rip);
+    printf("Child stopped at RIP = 0x%08llx\n", regs.rip);
 
   return data;
 }
@@ -109,11 +111,11 @@ void run_debugger(pid_t child_pid)
 
     /* Obtain and show child's instruction pointer */
     ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
-    printf("Child started. RIP = 0x%08x\n", regs.rip);
+    printf("Child started. RIP = 0x%08llx\n", regs.rip);
 
     unsigned long addr = 0x4005a2;
     unsigned long data = ptrace(PTRACE_PEEKTEXT, child_pid, (void*)addr, 0);
-    printf("Original data at 0x%08x: 0x%08x\n", addr, data);
+    printf("Original data at 0x%08lx: 0x%08lx\n", addr, data);
 
     /* Write the trap instruction 'int 3' into the address */
     unsigned long data_with_trap = (data & 0xFFFFFF00) | 0xCC;
@@ -121,7 +123,7 @@ void run_debugger(pid_t child_pid)
 
     /* See what's there again... */
     unsigned long readback_data = ptrace(PTRACE_PEEKTEXT, child_pid, (void*)addr, 0);
-    printf("After trap, data at 0x%08x: 0x%08x\n", addr, readback_data);
+    printf("After trap, data at 0x%08lx: 0x%08lx\n", addr, readback_data);
 
     /* Let the child run to the breakpoint and wait for it to
     ** reach it
@@ -139,7 +141,7 @@ void run_debugger(pid_t child_pid)
 
     /* See where the child is now */
     ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
-    printf("Child stopped at RIP = 0x%08x\n", regs.rip);
+    printf("Child stopped at RIP = 0x%08llx\n", regs.rip);
 
     /* Remove the breakpoint by restoring the previous data
     ** at the target address, and unwind the EIP back by 1 to
