@@ -7,10 +7,10 @@ LDIR =../lib
 
 LIBS=
 
-_DEPS = run.h
+_DEPS = run.h breakpoint.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = gdb-lite.o run.o
+_OBJ = gdb-lite.o run.o breakpoint.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 GDB_LITE_C = ../gdb-lite.c
