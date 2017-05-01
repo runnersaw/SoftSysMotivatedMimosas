@@ -40,7 +40,7 @@ char *get_input(char *input) {
 /*
 rest_of_string_after_delimiter
   Takes an input string and a delimiter, and returns a newly allocated string that
-  contains the portion of the input string that is after the first instance of the 
+  contains the portion of the input string that is after the first instance of the
   delimiter.
 
   It is your responsibility to free the returned string!
@@ -64,7 +64,7 @@ char *rest_of_string_after_delimiter(char *input, char *delimiter) {
 /*
 first_string_before_delimiter
   Takes an input string and a delimiter, and returns a newly allocated string that
-  contains the portion of the input string that is before the first instance of the 
+  contains the portion of the input string that is before the first instance of the
   delimiter.
 
   It is your responsibility to free the returned string!
@@ -138,21 +138,25 @@ int main(int argc, char *argv[]) {
         insertBreakpoint(breakpoint);
         //run_debugger(pid);
         //We are the parent we want to attach a process to this PID
-        
+
       }
     } else if(strcmp(command, "resume") == 0) {
       if (!IS_AT_BREAKPOINT) {
         printf("Code is not at breakpoint, nothing to resume\n");
       }
       else {
-        resumeBreakpoint(breakpoint );
+        resumeBreakpoint(breakpoint);
       }
-    } else {
+    } else if (strcmp(command,"dump") == 0) {
+     if (!IS_AT_BREAKPOINT) {
+       printf("Code is not at breakpoint, nothing to dump\n");
+     }
+     else{
+       printStack(breakpoint);
+     }
+   } else
       printf("Command not handled: %s\n", input);
-    }
   }
 
   return 0;
 }
-
-
