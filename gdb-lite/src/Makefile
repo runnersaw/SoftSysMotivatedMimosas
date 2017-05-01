@@ -7,10 +7,10 @@ LDIR =../lib
 
 LIBS=
 
-_DEPS = run.h breakpoint.h
+_DEPS = run.h breakpoint.h dump.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = gdb-lite.o run.o breakpoint.o
+_OBJ = gdb-lite.o run.o breakpoint.o dump.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 GDB_LITE_C = ../gdb-lite.c
@@ -35,4 +35,3 @@ gdb-lite: $(GDB_LITE_OUT)
 
 clean:
 	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~
-
