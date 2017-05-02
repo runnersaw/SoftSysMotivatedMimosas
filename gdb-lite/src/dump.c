@@ -16,14 +16,23 @@
 
 struct user_regs_struct regs;
 
+/*
+  Function:  Prints contents of stack
+  Input:     Breakpoint (Structure)
+*/
 void printStack(Breakpoint* breakpoint){
+
   unsigned long addr = breakpoint->address;
   int child_pid = breakpoint->pid;
+
+  // gets register info
   ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
 
+  // prints base pointer and stack pointer
   printreg(rsp);
   printreg(rbp);
 
+  //Checks if the stack is empty
   if (regs.rbp <= regs.rsp){
     fprintf(stderr,"Error in dumping stack, invalid breakpoint?\n");
     return;
@@ -32,6 +41,7 @@ void printStack(Breakpoint* breakpoint){
   int i = 0;
   void* rsp_addr = (void*)((unsigned long int)(regs.rsp + i));
 
+  // loops and print the stack (4 Bytes at a time)
   while((unsigned long int)rsp_addr!= regs.rbp){
     long rsp_val = ptrace(PTRACE_PEEKDATA, child_pid, rsp_addr, NULL);
 
