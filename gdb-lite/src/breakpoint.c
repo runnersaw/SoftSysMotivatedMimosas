@@ -1,3 +1,8 @@
+/*
+This file is responsible for handling breakpoint functionality within our debugger.
+This file provides methods capable of inserting a breakpoint into a file and resuming 
+the previously created breakpoint.
+*/
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/ptrace.h>
@@ -10,7 +15,11 @@
 
 #include "breakpoint.h"
 
-
+/*
+Constructor for the Breakpoint object. This objecct will be populated
+with the previous instruction, the memory address it is inserted at
+and the PID of the process it is attached to.
+*/
 Breakpoint *make_breakpoint() {
     Breakpoint *breakpoint = malloc(sizeof(Breakpoint));
     return breakpoint;
@@ -19,6 +28,10 @@ Breakpoint *make_breakpoint() {
 int wait_status;
 struct user_regs_struct regs;
 
+/*
+Inserts a breakpoint onto the PID specified by breakpoint->pid
+at the address given by breakpoint->address.
+*/
 void insertBreakpoint(Breakpoint *breakpoint) {
     
     unsigned long addr = breakpoint->address;
@@ -59,14 +72,14 @@ void insertBreakpoint(Breakpoint *breakpoint) {
     ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
     printf("Child stopped. Instruction pointer = 0x%08llx\n", regs.rip);
 }
-
+/*
+ * Remove the breakpoint by restoring the previous data
+ * at the target address, and unwind the EIP back by 1 to
+ * let the CPU execute the original instruction that was
+ * there.
+ */
 void resumeBreakpoint(Breakpoint *breakpoint) {
-    /*
-     * Remove the breakpoint by restoring the previous data
-     * at the target address, and unwind the EIP back by 1 to
-     * let the CPU execute the original instruction that was
-     * there.
-     */
+
     unsigned long addr = breakpoint->address;
     unsigned long data = breakpoint->previousInstruction;
     int child_pid = breakpoint->pid;
