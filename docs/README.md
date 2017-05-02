@@ -26,9 +26,8 @@ Our implementation starts with a REPL loop. Once within this REPL loop users can
 - resume: resume a program that has reached a breakpoint (can only be used if the program has reached a breakpoint)
 - dump: dump the contents of the stack (can only be used if the program has reached a breakpoint)
 - func: prints out the symbol table entry of a provided function
-- var: prints out the symbol table entry of a provided global variable
+- var: prints out the address and value of a global variable
 - symtable: prints out the entire symbol table
-- val: print the value at a given address (can only be used if the program has reached a breakpoint)
 
 ### ptrace
 

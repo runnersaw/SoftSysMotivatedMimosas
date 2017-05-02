@@ -33,7 +33,7 @@ At the moment, this will only work on 64-bit versions of Linux.
 run *args here* # Runs the file with the given arguments
 quit # Exits the gdb-lite executable
 func # Prints the address of a given function
-var # Prints the address of a global variable
+var # Prints the address of a global variable (If in breakpoint, prints value also)
 symtable # Prints the symtable for the file
 break # Allows you to enter an address to create a trap instruction at
 
@@ -43,7 +43,6 @@ break # Allows you to enter an address to create a trap instruction at
 
 dump # Prints the contents of the stack
 resume # Will resume execution of the file
-val # Prints the value of a variable at a given address
 ```
 
 To get an address for the `break` command, use the print command to print the address of the function you would like to break on first.
