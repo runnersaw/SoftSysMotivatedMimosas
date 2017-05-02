@@ -79,10 +79,19 @@ int main(int argc, char *argv[]) {
     } else if (strcmp(command, "quit") == 0) {
       return 0;
     } else if (strcmp(command, "break") == 0) {
-      printf("Please enter address to insert breakpoint on\n");
-      fgets(input, MAX_INPUT_LENGTH, stdin);
-      //0x4005a2 is the address I use for test
-      unsigned long addr = strtol(input, NULL, 0);
+      unsigned long addr;
+      if (*(args + 1) == NULL) {
+        printf("Please enter address to insert breakpoint on\n");
+        fgets(input, MAX_INPUT_LENGTH, stdin);
+        //0x4005a2 is the address I use for test
+        addr = strtol(input, NULL, 0);
+      } else {
+        addr = function_symbol(fname, *(args + 1));
+        if (addr == 0) {
+          printf("%s was not found in file %s\n", *(args + 1), fname);
+          continue;
+        }
+      }
 
       IS_AT_BREAKPOINT = 1;
 
@@ -116,27 +125,30 @@ int main(int argc, char *argv[]) {
     } else if (strcmp(command,"func") == 0) {
       printf("Please enter name of function to print\n");
       fgets(input, MAX_INPUT_LENGTH, stdin);
-      int code = print_function_symbol(fname, strtok(input,"\n"));
+      int code = function_symbol(fname, strtok(input,"\n"));
       if (code == 0) {
         printf("%s was not found in file %s\n", input, fname);
       }
     } else if (strcmp(command,"symtable") == 0) {
       print_symbol_table(fname);
     } else if (strcmp(command,"var") == 0) {
-      printf("Please enter name of global variable to print\n");
-      fgets(input, MAX_INPUT_LENGTH, stdin);
-      int code = print_global_symbol(fname, strtok(input,"\n"));
-      if (code == 0) {
-        printf("%s was not found in file %s\n", input, fname);
-      }
-    } else if (strcmp(command,"val") == 0) {
-      if (!IS_AT_BREAKPOINT) {
-        printf("Code is not at breakpoint, nothing to dump\n");
-      } else {
-        printf("Please enter address of a variable to print\n");
+      unsigned long addr;
+      if (*(args + 1) == NULL) {
+        printf("Please enter address to insert breakpoint on\n");
         fgets(input, MAX_INPUT_LENGTH, stdin);
+        //0x4005a2 is the address I use for test
+        addr = strtol(input, NULL, 0);
+      } else {
+        addr = global_symbol(fname, *(args + 1));
+        if (addr == 0) {
+          printf("%s was not found in file %s\n", *(args + 1), fname);
+          continue;
+        }
+      }
 
-        unsigned long addr = strtol(input, NULL, 0);
+      if (!IS_AT_BREAKPOINT) {
+        printf("Not at breakpoint, can't get value.\n");
+      } else {
         long rsp_val = ptrace(PTRACE_PEEKDATA, breakpoint->pid, addr, NULL);
 
         if(rsp_val != -1) {

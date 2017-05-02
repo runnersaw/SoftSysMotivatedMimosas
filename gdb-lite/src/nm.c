@@ -194,7 +194,7 @@ symbol* read_symbols(elf_struct *elf){
     return (symbol_list);
 }
 
-int print_function_symbol(char* file, char* func) {
+unsigned int function_symbol(char* file, char* func) {
     symbol *symbols;
 
     // Our main ELF structure
@@ -209,26 +209,22 @@ int print_function_symbol(char* file, char* func) {
     //If the symbol exists with all of the fields, it should be elgible to be printed
     // Here our value is our address
     int i = 0; 
-    int count = 0;
+    unsigned int ret = 0;
     while (symbols[i].value || symbols[i].type || symbols[i].name){
         //Check if it is a function ('T') and matches the name of the given function
         if (symbols[i].type == 'T' && strcmp(symbols[i].name,func)==0 ){
             if (symbols[i].value) {
-                count++;
                 printf("%016x %c %s\n", symbols[i].value, symbols[i].type, symbols[i].name);
-            }
-            //else {
-            //    printf("%18c %s\n", symbols[i].type, symbols[i].name);
-            //}        
+                ret = symbols[i].value;
+            }     
         }
         i++;
     }
     free(symbols);
-    if (count == 0) return 0;
-    return 1;
+    return ret;
 }
 
-int print_global_symbol(char* file, char* func) {
+unsigned int global_symbol(char* file, char* func) {
     symbol *symbols;
 
     // Our main ELF structure
@@ -243,23 +239,19 @@ int print_global_symbol(char* file, char* func) {
     //If the symbol exists with all of the fields, it should be elgible to be printed
     // Here our value is our address
     int i = 0; 
-    int count = 0;
+    unsigned int ret = 0;
     while (symbols[i].value || symbols[i].type || symbols[i].name){
         //Check if it is a function ('T') and matches the name of the given function
         if ((symbols[i].type == 'b' || symbols[i].type == 'B' || symbols[i].type == 'D') && strcmp(symbols[i].name,func)==0 ){
             if (symbols[i].value) {
-                count++;
+                ret = symbols[i].value;
                 printf("%016x %c %s\n", symbols[i].value, symbols[i].type, symbols[i].name);
-            }
-            //else {
-            //    printf("%18c %s\n", symbols[i].type, symbols[i].name);
-            //}        
+            } 
         }
         i++;
     }
     free(symbols);
-    if (count == 0) return 0;
-    return 1;
+    return ret;
 }
 
 int print_symbol_table(char* file){
