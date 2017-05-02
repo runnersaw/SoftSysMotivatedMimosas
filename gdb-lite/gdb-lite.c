@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
       else{
         printStack(breakpoint);
       }
-    } else if (strcmp(command,"print") == 0) {
+    } else if (strcmp(command,"func") == 0) {
       printf("Please enter name of function to print\n");
       fgets(input, MAX_INPUT_LENGTH, stdin);
       int code = print_function_symbol(fname, strtok(input,"\n"));
@@ -122,6 +122,30 @@ int main(int argc, char *argv[]) {
       }
     } else if (strcmp(command,"symtable") == 0) {
       print_symbol_table(fname);
+    } else if (strcmp(command,"var") == 0) {
+      printf("Please enter name of global variable to print\n");
+      fgets(input, MAX_INPUT_LENGTH, stdin);
+      int code = print_global_symbol(fname, strtok(input,"\n"));
+      if (code == 0) {
+        printf("%s was not found in file %s\n", input, fname);
+      }
+    } else if (strcmp(command,"val") == 0) {
+      if (!IS_AT_BREAKPOINT) {
+        printf("Code is not at breakpoint, nothing to dump\n");
+      }
+      else{
+        printf("Please enter address of a variable to print\n");
+        fgets(input, MAX_INPUT_LENGTH, stdin);
+
+        unsigned long addr = strtol(input, NULL, 0);
+        long rsp_val = ptrace(PTRACE_PEEKDATA, breakpoint->pid, addr, NULL);
+
+        if(rsp_val != -1) {
+          printf("(Address:0x%016lx), Value(32 bits): %10ld or 0x%08lx\n", (unsigned long int) addr, rsp_val &0xFFFFFFFF, rsp_val&0xFFFFFFFF);
+        } else {
+          printf("Couldn't find address.\n");
+        }
+      }
     } else {
       printf("Command not handled: %s\n", input);
     }

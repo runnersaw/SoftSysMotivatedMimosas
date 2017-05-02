@@ -22,7 +22,6 @@ struct user_regs_struct regs;
 */
 void printStack(Breakpoint* breakpoint){
 
-  unsigned long addr = breakpoint->address;
   int child_pid = breakpoint->pid;
 
   // gets register info

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int i = 0;
+int i = 10;
 
 int main()
 {

@@ -228,6 +228,40 @@ int print_function_symbol(char* file, char* func) {
     return 1;
 }
 
+int print_global_symbol(char* file, char* func) {
+    symbol *symbols;
+
+    // Our main ELF structure
+    elf_struct elf;
+
+    //Read the file into our elf struct
+    read_file(file, &elf);
+
+    //Now find the symbols
+    symbols = read_symbols(&elf);
+
+    //If the symbol exists with all of the fields, it should be elgible to be printed
+    // Here our value is our address
+    int i = 0; 
+    int count = 0;
+    while (symbols[i].value || symbols[i].type || symbols[i].name){
+        //Check if it is a function ('T') and matches the name of the given function
+        if ((symbols[i].type == 'b' || symbols[i].type == 'B' || symbols[i].type == 'D') && strcmp(symbols[i].name,func)==0 ){
+            if (symbols[i].value) {
+                count++;
+                printf("%016x %c %s\n", symbols[i].value, symbols[i].type, symbols[i].name);
+            }
+            //else {
+            //    printf("%18c %s\n", symbols[i].type, symbols[i].name);
+            //}        
+        }
+        i++;
+    }
+    free(symbols);
+    if (count == 0) return 0;
+    return 1;
+}
+
 int print_symbol_table(char* file){
     symbol *symbols;
 

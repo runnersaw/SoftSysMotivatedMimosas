@@ -48,6 +48,7 @@ typedef struct s_elf_struct {
 }    elf_struct;
 
 int print_function_symbol(char* file, char* func);
+int print_global_symbol(char* file, char* func);
 int print_symbol_table(char* file);
 
 #endif
