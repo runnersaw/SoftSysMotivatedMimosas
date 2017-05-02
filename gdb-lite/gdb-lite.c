@@ -1,13 +1,23 @@
-
+/*
+File responsible for creating a REPL loop that allows the user
+to interact with our debugger. Essentially looks for keyword arguments
+and delgates the work to a function from a different file.
+*/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/reg.h>
 #include <sys/ptrace.h>
+#include <sys/prctl.h>
+#include <signal.h>
 
 #include "run.h"
 #include "breakpoint.h"
+#include "nm.h"
+#include "delimiter.h"
+#include "dump.h"
+
 
 #define MAX_INPUT_LENGTH 1000
 
@@ -37,63 +47,9 @@ char *get_input(char *input) {
   return input;
 }
 
-/*
-rest_of_string_after_delimiter
-  Takes an input string and a delimiter, and returns a newly allocated string that
-  contains the portion of the input string that is after the first instance of the
-  delimiter.
-
-  It is your responsibility to free the returned string!
-*/
-char *rest_of_string_after_delimiter(char *input, char *delimiter) {
-  char *res = strstr(input, delimiter);
-  if (res == NULL) {
-    return "";
-  }
-
-  res = res + strlen(delimiter);
-
-  int len = strlen(res) + 1;
-  char *output = malloc(len*sizeof(char));
-  strcpy(output, res);
-  output[len-1] = '\0';
-
-  return output;
-}
-
-/*
-first_string_before_delimiter
-  Takes an input string and a delimiter, and returns a newly allocated string that
-  contains the portion of the input string that is before the first instance of the
-  delimiter.
-
-  It is your responsibility to free the returned string!
-*/
-char *first_string_before_delimiter(char *input, char *delimiter) {
-  // Find first instance of delimiter
-  char *res = strstr(input, delimiter);
-
-  int len;
-  // If not found, copy whole string. Else, the length we need to copy is the difference between the two.
-  if (res == NULL) {
-    len = strlen(input);
-  } else {
-    len = (res - input) / sizeof(char);
-  }
-  char *output = malloc((len + 1) * sizeof(char));
-  int i;
-  for (i = 0; i < len; i++) {
-    output[i] = input[i];
-  }
-  output[len] = '\0';
-  return output;
-}
-
 int IS_AT_BREAKPOINT = 0;
 
 int main(int argc, char *argv[]) {
-  unsigned long previousBreakpointInstruction;
-  unsigned long addr;
   int pid;
   Breakpoint *breakpoint = make_breakpoint();
   char *input = malloc((MAX_INPUT_LENGTH + 1) * sizeof(char));
@@ -108,12 +64,16 @@ int main(int argc, char *argv[]) {
 
   while (get_input(input) != NULL) {
     // Split on whitespace
-    char *command = first_string_before_delimiter(input, " ");
+    char **args = split_on_delimiter(input, " \n");
+    if (*args == NULL) {
+      perror("Couldn't find input arguments");
+      free(args);
+      continue;
+    }
+    char *command = *args;
 
     // Interpret command here
     if (strcmp(command, "run") == 0) {
-      char *args = rest_of_string_after_delimiter(input, " ");
-
       int code = run(fname, args);
       printf("\n%s exited with code %d\n", fname, code);
     } else if (strcmp(command, "quit") == 0) {
@@ -122,7 +82,7 @@ int main(int argc, char *argv[]) {
       printf("Please enter address to insert breakpoint on\n");
       fgets(input, MAX_INPUT_LENGTH, stdin);
       //0x4005a2 is the address I use for test
-      addr = strtol(input, NULL, 0);
+      unsigned long addr = strtol(input, NULL, 0);
 
       IS_AT_BREAKPOINT = 1;
 
@@ -130,15 +90,14 @@ int main(int argc, char *argv[]) {
       if (pid == 0) {
         //If it is the child then we wanna run this
         ptrace(PTRACE_TRACEME, 0, 0, 0);
-        int code = execl(fname, fname, 0);
+        // Die when parent dies
+        prctl(PR_SET_PDEATHSIG, SIGKILL);
+        int code = execl(fname, fname, (char *)NULL);
         printf("%s exited with code %d\n", fname, code);
       } else {
         breakpoint->address = addr;
         breakpoint->pid = pid;
         insertBreakpoint(breakpoint);
-        //run_debugger(pid);
-        //We are the parent we want to attach a process to this PID
-
       }
     } else if(strcmp(command, "resume") == 0) {
       if (!IS_AT_BREAKPOINT) {
@@ -148,14 +107,28 @@ int main(int argc, char *argv[]) {
         resumeBreakpoint(breakpoint);
       }
     } else if (strcmp(command,"dump") == 0) {
-     if (!IS_AT_BREAKPOINT) {
-       printf("Code is not at breakpoint, nothing to dump\n");
-     }
-     else{
-       printStack(breakpoint);
-     }
-   } else
+      if (!IS_AT_BREAKPOINT) {
+        printf("Code is not at breakpoint, nothing to dump\n");
+      }
+      else{
+        printStack(breakpoint);
+      }
+    } else if (strcmp(command,"print") == 0) {
+      printf("Please enter name of function to print\n");
+      fgets(input, MAX_INPUT_LENGTH, stdin);
+      int code = print_function_symbol(fname, strtok(input,"\n"));
+      if (code == 0) {
+        printf("%s was not found in file %s\n", input, fname);
+      }
+    } else if (strcmp(command,"symtable") == 0) {
+      print_symbol_table(fname);
+    } else {
       printf("Command not handled: %s\n", input);
+    }
+
+    // Free the args strings that we copied
+    free_strings(args);
+    free(args);
   }
 
   return 0;

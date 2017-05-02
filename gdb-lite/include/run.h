@@ -1,4 +1,4 @@
 
-int run(char *fname, char *args);
+int run(char *fname, char **args);
 
 

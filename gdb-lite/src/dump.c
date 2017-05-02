@@ -46,7 +46,7 @@ void printStack(Breakpoint* breakpoint){
     long rsp_val = ptrace(PTRACE_PEEKDATA, child_pid, rsp_addr, NULL);
 
     if(rsp_val != -1) {
-    printf("(Address:0x%016lx), Value(32 bits): % 16d or 0x%08x\n", (unsigned long int) rsp_addr, rsp_val, rsp_val);
+      printf("(Address:0x%016lx), Value(32 bits): %10ld or 0x%08lx\n", (unsigned long int) rsp_addr, rsp_val &0xFFFFFFFF, rsp_val&0xFFFFFFFF);
     } else {
       printf("Error in reading register : 0x%016lx",(unsigned long int) rsp_addr);
     }
