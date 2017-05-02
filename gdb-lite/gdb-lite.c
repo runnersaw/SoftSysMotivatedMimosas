@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <sys/reg.h>
 #include <sys/ptrace.h>
+#include <sys/prctl.h>
+#include <signal.h>
 
 #include "run.h"
 #include "breakpoint.h"
@@ -83,15 +85,14 @@ int main(int argc, char *argv[]) {
       if (pid == 0) {
         //If it is the child then we wanna run this
         ptrace(PTRACE_TRACEME, 0, 0, 0);
+        // Die when parent dies
+        prctl(PR_SET_PDEATHSIG, SIGKILL);
         int code = execl(fname, fname, (char *)NULL);
         printf("%s exited with code %d\n", fname, code);
       } else {
         breakpoint->address = addr;
         breakpoint->pid = pid;
         insertBreakpoint(breakpoint);
-        //run_debugger(pid);
-        //We are the parent we want to attach a process to this PID
-
       }
     } else if(strcmp(command, "resume") == 0) {
       if (!IS_AT_BREAKPOINT) {
@@ -112,7 +113,7 @@ int main(int argc, char *argv[]) {
       fgets(input, MAX_INPUT_LENGTH, stdin);
       int code = print_function_symbol(fname, strtok(input,"\n"));
       if (code == 0) {
-        printf("%s was not found in file %s", input, fname);
+        printf("%s was not found in file %s\n", input, fname);
       }
     } else if (strcmp(command,"symtable") == 0) {
       print_symbol_table(fname);
