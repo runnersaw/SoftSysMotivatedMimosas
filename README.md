@@ -39,6 +39,8 @@ resume # Will resume execution of the file
 
 To get an address for the `break` command, use the print command to print the address of the function you would like to break on first.
 
+![GIF of Usage](docs/gdb-lite.gif)
+
 ### Adding new code
 
 This debugger will only work on 64 bit Linux. Modifying it to work for 32 bit Linux should be trivial, but it would be very difficult to get this debugger to work on a Mac. 
