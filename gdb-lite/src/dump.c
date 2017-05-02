@@ -23,8 +23,13 @@ void printStack(Breakpoint* breakpoint){
   printreg(rsp);
   printreg(rbp);
 
-  if (regs.rbp <= regs.rsp){
+  if (regs.rbp < regs.rsp){
     fprintf(stderr,"Error in dumping stack, invalid breakpoint?\n");
+    return;
+  }
+
+  if (regs.rbp == regs.rsp){
+    fprintf(stdout,"Nothing on the stack to dump.\n");
     return;
   }
 
