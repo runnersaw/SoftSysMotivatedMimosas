@@ -93,9 +93,6 @@ int main(int argc, char *argv[]) {
         breakpoint->address = addr;
         breakpoint->pid = pid;
         insertBreakpoint(breakpoint);
-        //run_debugger(pid);
-        //We are the parent we want to attach a process to this PID
-
       }
     } else if(strcmp(command, "resume") == 0) {
       if (!IS_AT_BREAKPOINT) {
