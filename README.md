@@ -14,7 +14,7 @@ Our project is to create a program that replicates portions of [GDB](https://www
 `cd` into the `gdb-lite` directory and run the following make commands to compile or clean the project:
 
 ```bash
-make package # Makes a gdb-lite executable in the gdb-lite directory
+make gdb-lite # Makes a gdb-lite executable in the gdb-lite directory
 make clean # Removes temporary object files for a clean rebuild
 ```
 
