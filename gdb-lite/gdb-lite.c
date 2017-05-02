@@ -132,8 +132,7 @@ int main(int argc, char *argv[]) {
     } else if (strcmp(command,"val") == 0) {
       if (!IS_AT_BREAKPOINT) {
         printf("Code is not at breakpoint, nothing to dump\n");
-      }
-      else{
+      } else {
         printf("Please enter address of a variable to print\n");
         fgets(input, MAX_INPUT_LENGTH, stdin);
 
