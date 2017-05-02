@@ -16,31 +16,37 @@
 
 struct user_regs_struct regs;
 
+/*
+  Function:  Prints contents of stack
+  Input:     Breakpoint (Structure)
+*/
 void printStack(Breakpoint* breakpoint){
+
+  unsigned long addr = breakpoint->address;
   int child_pid = breakpoint->pid;
+
+  // gets register info
   ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
 
+  // prints base pointer and stack pointer
   printreg(rsp);
   printreg(rbp);
 
-  if (regs.rbp < regs.rsp){
-    fprintf(stderr,"Error in dumping stack, invalid breakpoint?\n");
-    return;
-  }
-
-  if (regs.rbp == regs.rsp){
-    fprintf(stdout,"Nothing on the stack to dump.\n");
+  //Checks if the stack is empty
+  if (regs.rbp <= regs.rsp){
+    fprintf(stderr,"Error in dumping stack. We're likely at the beginning of a function before the base pointer was set.\n");
     return;
   }
 
   int i = 0;
   void* rsp_addr = (void*)((unsigned long int)(regs.rsp + i));
 
+  // loops and print the stack (4 Bytes at a time)
   while((unsigned long int)rsp_addr!= regs.rbp){
     long rsp_val = ptrace(PTRACE_PEEKDATA, child_pid, rsp_addr, NULL);
 
     if(rsp_val != -1) {
-      printf("(Address:0x%016lx), Value(32 bits): %16ld or 0x%08lx\n", (unsigned long int) rsp_addr, rsp_val, rsp_val);
+      printf("(Address:0x%016lx), Value(32 bits): %10ld or 0x%08lx\n", (unsigned long int) rsp_addr, rsp_val &0xFFFFFFFF, rsp_val&0xFFFFFFFF);
     } else {
       printf("Error in reading register : 0x%016lx",(unsigned long int) rsp_addr);
     }
