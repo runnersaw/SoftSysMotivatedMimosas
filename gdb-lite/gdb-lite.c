@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
       if (pid == 0) {
         //If it is the child then we wanna run this
         ptrace(PTRACE_TRACEME, 0, 0, 0);
-        int code = execl(fname, fname, 0);
+        int code = execl(fname, fname, (char *)0);
         printf("%s exited with code %d\n", fname, code);
       } else {
         breakpoint->address = addr;
