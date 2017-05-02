@@ -9,6 +9,7 @@
 #include "run.h"
 #include "breakpoint.h"
 
+
 #define MAX_INPUT_LENGTH 1000
 
 /*
@@ -148,13 +149,21 @@ int main(int argc, char *argv[]) {
         resumeBreakpoint(breakpoint);
       }
     } else if (strcmp(command,"dump") == 0) {
-     if (!IS_AT_BREAKPOINT) {
-       printf("Code is not at breakpoint, nothing to dump\n");
-     }
-     else{
-       printStack(breakpoint);
-     }
-   } else
+      if (!IS_AT_BREAKPOINT) {
+        printf("Code is not at breakpoint, nothing to dump\n");
+      }
+      else{
+        printStack(breakpoint);
+      }
+    } else if (strcmp(command,"print") == 0) {
+        printf("Please enter name of function to print\n");
+        fgets(input, MAX_INPUT_LENGTH, stdin);
+        int code = print_function_symbol(fname, strtok(input,"\n"));
+        if (code == 0)
+            printf("%s was not found in file %s", input, fname);
+    } else if (strcmp(command,"symtable") == 0) {
+        print_symbol_table(fname);
+    } else
       printf("Command not handled: %s\n", input);
   }
 
