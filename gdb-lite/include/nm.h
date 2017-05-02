@@ -1,6 +1,9 @@
 #ifndef NM_H_
 #define NM_H_
 
+// Need this to read ELF files
+#include <elf.h>
+
 //All ELF files start with this magic number
 #define ELF_ID "\177ELF"
 

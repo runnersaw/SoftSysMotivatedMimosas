@@ -21,8 +21,6 @@ areas of the ELF data was realized: https://github.com/nsarno/nm-objdump/
 nm man page for determining reasonble return functionality: https://linux.die.net/man/1/nm
 
 */
-#include <elf.h>
-//Need this to read elf files
 #include <stdio.h>
 #include <fcntl.h>
 //Need this for open()

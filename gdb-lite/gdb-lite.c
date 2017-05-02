@@ -10,6 +10,7 @@
 
 #include "run.h"
 #include "breakpoint.h"
+#include "nm.h"
 #include "delimiter.h"
 #include "dump.h"
 
