@@ -20,8 +20,24 @@ make clean # Removes temporary object files for a clean rebuild
 
 ### Usage
 - To run GDB lite, compile an executable you wish to debug. Then run `./gdb-lite MY_EXEC`
-- From here you can see the required input for each command you wish to run.
+- When you are in the `gdb-lite` console, you can use any of the following functions:
 
+```bash
+run *args here* # Runs the file with the given arguments
+quit # Exits the gdb-lite executable
+print # Prints the ddress of a given function
+symtable # Prints the symtable for the file
+break # Allows you to enter an address to create a trap instruction at
+
+###
+# Only available in a breakpoint
+###
+
+dump # Prints the contents of the stack
+resume # Will resume execution of the file
+```
+
+To get an address for the `break` command, use the print command to print the address of the function you would like to break on first.
 
 ### Adding new code
 
