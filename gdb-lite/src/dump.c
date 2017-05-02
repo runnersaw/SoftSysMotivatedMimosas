@@ -17,7 +17,6 @@
 struct user_regs_struct regs;
 
 void printStack(Breakpoint* breakpoint){
-  unsigned long addr = breakpoint->address;
   int child_pid = breakpoint->pid;
   ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
 
