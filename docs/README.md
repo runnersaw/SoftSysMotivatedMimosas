@@ -4,7 +4,7 @@ For our final Software Systems Project we created a C debugger modeled after GDB
 
 ## Project Motivation
 
-The debugger is an important tool that programmers should learn about and be familiar with in order to quickly debug problems with their programs or inspect program functionality closely. GDB is a useful tool, especially in a low-level language like C, where errors like mishandling memory are too easy and information about the error isn’t clear.
+The debugger is an important tool that programmers should learn about and be familiar with in order to quickly debug problems with their programs or inspect program functionality. GDB is a useful tool, especially in a low-level language like C, where errors like mishandling memory are too easy and information about the error isn’t clear.
 
 We wanted to replicate this functionality in order to learn about how debuggers work, as well as to learn about how processes can inspect, alter, and control other processes. Modifying executables has many interesting applications, and we wanted to learn about how this was done on Linux.
 
