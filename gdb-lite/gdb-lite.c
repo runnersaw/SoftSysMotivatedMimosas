@@ -1,4 +1,8 @@
-
+/*
+File responsible for creating a REPL loop that allows the user
+to interact with our debugger. Essentially looks for keyword arguments
+and delgates the work to a function from a different file.
+*/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
