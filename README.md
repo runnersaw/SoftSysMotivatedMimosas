@@ -4,12 +4,14 @@ A lightweight, limited functionality debugger for C code.
 
 ### Authors
 
-- Deniz Celik 
-- Chong Swee Goh 
-- Sawyer Vaughan 
+- Deniz Celik
+- Chong Swee Goh
+- Sawyer Vaughan
 - Chris Wallace
 
 Our project is to create a program that replicates portions of [GDB](https://www.gnu.org/software/gdb/). GDB is a software program that allows developers to debug programs and give many pieces of useful information about the execution and state of the program.
+
+See more on our [project website](http://sawyervaughan.com/SoftSysMotivatedMimosas)
 
 ### Getting Started
 
