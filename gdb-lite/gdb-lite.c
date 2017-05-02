@@ -11,6 +11,7 @@
 #include "delimiter.h"
 #include "dump.h"
 
+
 #define MAX_INPUT_LENGTH 1000
 
 /*
@@ -106,6 +107,15 @@ int main(int argc, char *argv[]) {
       else{
         printStack(breakpoint);
       }
+    } else if (strcmp(command,"print") == 0) {
+        printf("Please enter name of function to print\n");
+        fgets(input, MAX_INPUT_LENGTH, stdin);
+        int code = print_function_symbol(fname, strtok(input,"\n"));
+        if (code == 0) {
+          printf("%s was not found in file %s", input, fname);
+        }
+    } else if (strcmp(command,"symtable") == 0) {
+        print_symbol_table(fname);
     } else {
       printf("Command not handled: %s\n", input);
     }
